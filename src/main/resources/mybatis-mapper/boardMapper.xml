@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.qaboard.board.dao.BoardDao">
+    <insert id="write" parameterType="Board">
+        insert into BOARD(board_number, board_write_date, board_title, board_content, board_writer, board_attached_file, board_answer_enabled, board_enabled)
+        values (BOARD_SEQ_BOARD_NUMBER.nextval,#{boardWriteDate},#{boardTitle},#{boardContent},#{boardWriter},#{boardAttachedFile},0,1)
+    </insert>
+    <update id="update">
+        update BOARD set BOARD_CONTENT = #{boardContent}, BOARD_TITLE = #{boardTitle} where BOARD_NUMBER=#{boardNumber}
+    </update>
+    <update id="answer" parameterType="com.example.qaboard.board.dto.BoardDto$Update">
+        update BOARD set BOARD_ANSWER_DATE =#{boardAnswerDate}, BOARD_ANSWER_CONTENT = #{boardAnswerContent}, BOARD_ANSWER_ENABLED = 1
+        where BOARD_NUMBER = #{boardNumber} and ROWNUM =1
+    </update>
+    <update id="delete" parameterType="Integer">
+        update BOARD SET BOARD_ENABLED = 0 where BOARD_NUMBER=#{boardNumber} and ROWNUM = 1
+    </update>
+    <select id="preview" resultType="com.example.qaboard.board.dto.BoardDto$Preview">
+        select BOARD_NUMBER, BOARD_WRITE_DATE, BOARD_TITLE, MEMBER_NICKNAME as board_writer, BOARD_ANSWER_ENABLED
+        from BOARD join MEMBER M on M.MEMBER_NUMBER = BOARD.BOARD_WRITER
+        where BOARD_ENABLED=1
+        order by BOARD_WRITE_DATE desc
+        offset #{start}-1 rows fetch next #{limit} rows only
+    </select>
+    <select id="count" resultType="Integer">
+        select count(BOARD_NUMBER) from BOARD where BOARD_ENABLED =1
+    </select>
+
+    <select id="read" resultType="com.example.qaboard.board.dto.BoardDto$Read">
+        select BOARD_NUMBER, BOARD_WRITE_DATE, BOARD_TITLE, BOARD_CONTENT, BOARD_WRITER, M.MEMBER_NICKNAME, BOARD_ATTACHED_FILE,
+               BOARD_ANSWER_CONTENT, BOARD_ANSWER_DATE, BOARD_ANSWER_ENABLED, BOARD_ENABLED
+        from BOARD join MEMBER M on BOARD.BOARD_WRITER = M.MEMBER_NUMBER
+        where BOARD_NUMBER= #{boardNumber} and BOARD_ENABLED=1 and ROWNUM=1
+    </select>
+
+</mapper>

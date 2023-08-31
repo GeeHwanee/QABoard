@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>문의 작성</title>
+</head>
+<body>
+<main>
+    <section>
+        <form action="/board/write" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="boardWriter" th:value="${memberNumber}">
+            <label>제목</label>
+            <input type="text" name="boardTitle"><br>
+            <label>본문</label>
+            <textarea rows="5" cols="30" name="boardContent"></textarea><br>
+            <label>첨부 파일</label>
+            <input type="file" name="boardAttachedFile"><br>
+            <button id="writeButtion">작성</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

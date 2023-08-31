@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>게시글 조회</title>
+
+    <script>
+        let isUpdate = false;
+        $(document).ready(function() {
+            $('#updateButton').on('click',function() {
+                if(memberNumber===boardWriter&&!isUpdate){
+                    $('#boardTitle').removeAttr('disabled');
+                    $('#boardContent').removeAttr('readonly');
+                    isUpdate = true;
+                    $('#updateButton').text('수정 완료');
+                }else if(isUpdate){
+                        const $boardNumber = $('#boardNumber').val();
+                        let $boardTitle = $('#boardTitle').val();
+                        let $boardContent = $('#boardContent').val();
+
+                    $.ajax({
+                        url:'/api/v1/board/update?boardNumber='+$boardNumber+'&boardTitle='+$boardTitle+'&boardContent='+$boardContent,
+                        method : 'POST',
+                        success : function(data) {
+                            $('#boardTitle').prop('disabled',true);
+                            $('#boardContent').prop('readonly',true);
+                            isUpdate = false;
+                            $('#updateButton').text('수정');
+                        }
+                    })
+                }
+            })
+
+            $('#deleteButtom').on('click',function() {
+
+            })
+        })
+
+    </script>
+</head>
+<body style="text-align: center">
+<script th:inline="javascript">
+    const memberNumber = [[${memberNumber}]];
+    const boardWriter = [[${board.boardWriter}]];
+</script>
+  <main>
+      <section>
+          <h1>게시글 조회</h1>
+      </section>
+    <section id="readSection">
+        <hr>
+            작성일 <p th:text="${board.boardWriteDate}"></p>
+            작성자 <p th:text="${board.memberNickname}"></p>
+        <input type="hidden" id="boardNumber" th:value="${board.boardNumber}">
+        <label>제목</label>
+        <input type="text" id="boardTitle" disabled th:value="${board.boardTitle}"><br>
+        <label>본문</label>
+        <textarea id="boardContent" style="height: 100px;width: 300px; resize: none" readonly th:value="${board.boardContent}" th:text="${board.boardContent}"></textarea><br>
+        <label>첨부파일</label>
+      <a th:href="@{board.boardAttachedFile}" download></a>
+    </section>
+      <section>
+          <button id="updateButton">수정</button>
+          <form action="/board/delete" method="post">
+              <input type="hidden" name="boardNumber" th:value="${board.boardNumber}">
+              <input type="hidden" name="boardWriter" th:value="${board.boardWriter}">
+          <button id="deleteButtom">삭제</button>
+          </form>
+          <button><a href="/board/list">목록</a></button>
+          <hr>
+      </section>
+    <section>
+      <label>답변</label>
+      <textarea style="height: 100px;width: 300px;resize: none" th:text="${board.boardAnswerContent}">미등록</textarea>
+        <button sec:authorize="hasRole('ROLE_ADMIN')">작성</button>
+    </section>
+  </main>
+</body>
+</html>
